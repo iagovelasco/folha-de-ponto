@@ -1,0 +1,24 @@
+/* CSS Document */
+.tabela_de_horarios{
+	width:100%;
+	border-collapse:collapse;
+	}
+.tabela_de_horarios th{
+	background:#066;
+	color:#FFF;
+	text-shadow:none !important;
+	text-align:center;
+	font-size:14px;
+	padding:5px 10px;
+	}
+.tabela_de_horarios td{
+	font-size:12px;
+	border:1px dotted;
+	border-collapse:collapse;
+	padding:3px 5px;
+	text-align:center;
+	}
+.center_content{
+	margin:0 auto !important;
+	width:210px;
+	}

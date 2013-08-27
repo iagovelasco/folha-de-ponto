@@ -5,51 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Bate-Ponto</title>
         <link rel="stylesheet" href="./css/jquery.mobile-1.3.2.min.css" />
-        <link rel="stylesheet" href="./theme-bate-ponto/bate-ponto.min.css" />
+        <link rel="stylesheet" href="theme-folha-de-ponto/folha-de-ponto.min.css" />
         
         <script src="./js/jquery-1.10.2.min.js"></script>
         <script src="./js/jquery.mobile-1.3.2.min.js"></script>
-        
+        <script src="./js/folha-de-ponto.js"></script>
+
         <script>
             $(document).ready(function(){
-				try{
-                    if(!window.openDatabase){
-                        alert('not supported');
-                    } else {
-                        var database = "ponto";
-                        var version = "1.0";
-                        var displayName = "ponto";
-                        var maxSize = 2 * 1024 *1024;
-                
-                        var db = openDatabase(database,version,displayName,maxSize);
-                    }
-                } catch(e){
-                    if(e == 2){
-                        alert("Invalid database version");
-                    } else {
-                        alert("Unknown error "+e+".");
-                    }
-                    return;
-                }
-                
-                function loadFolha(){
-                    db.transaction(function(tx){
-                        tx.executeSql('SELECT * FROM ponto',[],function(tx,results){
-                            var len = results.rows.length;
-                            console.log("Foram encontrados " + len + " registros.");
-                            html = "<table data-role='table' border='1'>";
-                            html+= "<tr><th>id</th><th>data</th><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><tr>";
-                            for(var i = 0; i<len;i++){
-                                var row = results.rows.item(i);
-                                html +="<tr><td>"+row['id']+"</td><td>"+row['data']+"</td><td>"+row['entrada']+"</td><td>"+row['almoco']+"</td><td>"+row['retorno']+"</td><td>"+row['saida']+"</td></tr>";
-                            }
-                            html+="</table>";
-                            $("#resultados").html(html);
-                        });
-                    });
-                }
-                
-                loadFolha();
+				
             });
             
         </script>
@@ -58,14 +22,16 @@
         
         <div data-role="page" id="folha-de-ponto" data-add-back-btn="true">
             <header data-role="header">
-                <h1>Bate-Ponto</h1>
+                <h1>Folha de Ponto</h1>
             </header>
             <section data-role="content">
                 <div id="resultados"></div>
                 
             </section>
             <footer data-role="footer" data-position="fixed">
-                
+                <nav data-role="navbar">
+                    
+                </nav>
             </footer>
         </div>
         
