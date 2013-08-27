@@ -9,7 +9,7 @@
 	text-shadow:none !important;
 	text-align:center;
 	font-size:14px;
-	padding:5px 10px;
+	padding:5px 5px;
 	}
 .tabela_de_horarios td{
 	font-size:12px;
@@ -20,5 +20,6 @@
 	}
 .center_content{
 	margin:0 auto !important;
-	width:210px;
+	width:220px;
 	}
+.ui-select{width:100% !important;}
