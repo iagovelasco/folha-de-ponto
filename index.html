@@ -1,44 +1,59 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-<title>Bate-Ponto</title>
-<link rel="apple-touch-icon" href="imagens/icon_57x57.png"/>
-<link rel="apple-touch-startup-image" href="imagens/startup.jpg" />
-<link rel="stylesheet" href="css/jquery.mobile-1.3.2.min.css" />
-<link rel="stylesheet" href="theme-folha-de-ponto/folha-de-ponto.min.css" />
-<link rel="stylesheet" type="text/css" href="css/folha-de-ponto.css">
-<script src="js/jquery-1.10.2.min.js"></script>
-<script src="js/jquery.mobile-1.3.2.min.js"></script>
-<script src="js/folha-de-ponto.js"></script>
-</head>
-<body>
-<div data-role="page" id="home">
-  <header data-role="header" data-position="fixed">
-    <h1>Folha de Ponto</h1>
-  </header>
-  <section data-role="content">
-    <div data-role="fieldcontain">
-      <label for="periodo" class="ui-hidden-accessible">Escolher</label>
-      <select name="periodo" id="periodo" data-native-menu="false" style="width:auto">
-        <option value="">Escolha o período</option>
-        <option value="entrada">Entrada</option>
-        <option value="almoco">Almoço</option>
-        <option value="retorno">Retorno</option>
-        <option value="saida">Saída</option>
-      </select>
-      <button id="bater">bater</button>
-    </div>
-  </section>
-  <footer data-role="footer" data-position="fixed">
-    <div class="center_content">
-      <div data-role="controlgroup" data-type="horizontal"> <a href="folha-de-ponto.html" data-icon="grid" data-role="button" data-transition="slideup">Folha</a>
-      <a href="configuracoes.html" data-icon="gear" data-role="button" data-transition="slideup">Configurações</a> </div>
-    </div>
-  </footer>
-</div>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <title>Bate-Ponto</title>
+        <link rel="apple-touch-icon" href="imagens/icon_57x57.png"/>
+        <link rel="apple-touch-startup-image" href="imagens/startup.jpg" />
+        <link rel="stylesheet" href="css/jquery.mobile-1.3.2.min.css" />
+        <link rel="stylesheet" href="theme-folha-de-ponto/folha-de-ponto.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/folha-de-ponto.css">
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="js/jquery.mobile-1.3.2.min.js"></script>
+        <script src="js/folha-de-ponto.js"></script>
+    </head>
+    <body>
+        <div data-role="page" id="home">
+            <header data-role="header" data-position="fixed">
+                <h1>Folha de Ponto</h1>
+            </header>
+            <section data-role="content">
+                <div data-role="fieldcontain">
+                    <div class="center_period">
+                        <fieldset id="periodo" data-role="controlgroup" data-type="horizontal" data-mini="true">
+                            <input type="radio" name="posicao" id="entrada" value="entrada" />
+                            <label for="entrada">Entrada</label>
+
+                            <input type="radio" name="posicao" id="almoco" value="almoco" />
+                            <label for="almoco">Almoço</label>
+
+                            <input type="radio" name="posicao" id="retorno" value="retorno" />
+                            <label for="retorno">Retorno</label>
+
+                            <input type="radio" name="posicao" id="saida" value="saida" />
+                            <label for="saida">Saída</label>
+                        </fieldset>
+                    </div>
+                    <button id="bater">bater</button>
+                </div>
+
+                <div data-role="popup" id="confirm">
+                    <p>Tem certeza que deseja atualizar o horário deste período?<p>
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a"><a href="javascript:;" data-role="button" id="confirm_update_yes">Sim</a></div>
+                        <div class="ui-block-b"><a href="javascript:;" data-role="button" id="confirm_update_no">Não</a></div>
+                    </div>
+                </div>
+            </section>
+            <footer data-role="footer" data-position="fixed">
+                <div class="center_content">
+                    <div data-role="controlgroup" data-type="horizontal"> <a href="folha-de-ponto.html" data-icon="grid" data-role="button" data-transition="slideup">Folha</a>
+                        <a href="configuracoes.html" data-icon="gear" data-role="button" data-transition="pop">Configurações</a> </div>
+                </div>
+            </footer>
+        </div>
+    </body>
 </html>

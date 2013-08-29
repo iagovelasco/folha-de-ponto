@@ -22,4 +22,12 @@
 	margin:0 auto !important;
 	width:220px;
 	}
+.center_period{
+	margin:0 auto !important;
+	width:275px;
+}
 .ui-select{width:100% !important;}
+.my-popup{
+	padding:30px;
+	}
+.atraso{color:#900; font-weight:bold;}
