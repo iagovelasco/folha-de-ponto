@@ -8,8 +8,8 @@
 	color:#FFF;
 	text-shadow:none !important;
 	text-align:center;
-	font-size:14px;
-	padding:5px 5px;
+	font-size:13px;
+	padding:5px 3px;
 	}
 .tabela_de_horarios td{
 	font-size:12px;
@@ -31,3 +31,10 @@
 	padding:30px;
 	}
 .atraso{color:#900; font-weight:bold;}
+
+@media all and (orientation:landscape) { 
+.center_period{
+	margin:0 auto !important;
+	width:auto;
+}
+}

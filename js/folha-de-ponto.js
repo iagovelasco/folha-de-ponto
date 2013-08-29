@@ -168,6 +168,13 @@ $(document).ready(function() {
         deletarReg(reglink);
         loadFolha();
     });
+	
+	function data_dm(value){
+		day = value.substr(8);
+		month = value.substr(5,2);
+		
+		return day+"/"+month;
+		}
 
     function loadFolha() {
         db.transaction(function(tx) {
@@ -197,8 +204,10 @@ $(document).ready(function() {
                             var class_saida = "class='atraso'";
                         }
                     }
+					
+					
                     html += "<tr>";
-                    html += "<td>" + row['data'] + "</td>";
+                    html += "<td>" + data_dm(row['data']) + "</td>";
                     html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
                     html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
                     html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
@@ -229,7 +238,7 @@ $(document).ready(function() {
 
         $("#salvar").on("click", function() {
             saveConfig();
-            $("#saveConfig").popup('open');
+        	$.mobile.changePage("index.html", {transition: "slideup"});
         });
     });
     $(document).on('pageshow', '#folha-de-ponto', function() {
