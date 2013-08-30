@@ -180,6 +180,7 @@ function setup() {
 
     /** Cria tabela no banco de dados se não existir */
     createTable();
+    loadDiario();
 
     console.log("finishing setup");
 }
@@ -272,7 +273,7 @@ function data_dm(value) {
  */
 function loadFolha() {
     db.transaction(function(tx) {
-        tx.executeSql('SELECT * FROM ponto', [], function(tx, results) {
+        tx.executeSql('SELECT * FROM ponto ORDER BY data desc', [], function(tx, results) {
             var len = results.rows.length;
             var entrada = window.localStorage.getItem('entrada');
             var almoco = window.localStorage.getItem('almoco');
@@ -301,10 +302,10 @@ function loadFolha() {
 
                 html += "<tr>";
                 html += "<td>" + data_dm(row['data']) + "</td>";
-                html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
-                html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
-                html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
-                html += "<td " + class_saida + ">" + row['saida'] + "</td>";
+                html += "<td " + class_entrada + ">" + row['entrada'].substr(0, 5) + "</td>";
+                html += "<td " + class_almoco + ">" + row['almoco'].substr(0, 5) + "</td>";
+                html += "<td " + class_almoco + ">" + row['retorno'].substr(0, 5) + "</td>";
+                html += "<td " + class_saida + ">" + row['saida'].substr(0, 5) + "</td>";
                 html += "<td><a href='#' title='" + row['id'] + "' class='apagarbtn' data-inline='true' data-mini='true' data-iconpos='notext' data-icon='delete' data-role='button'></a></td>";
                 html += "</tr>";
                 class_entrada = "";
@@ -352,10 +353,10 @@ function loadDiario() {
 
 
                 html += "<tr>";
-                html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
-                html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
-                html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
-                html += "<td " + class_saida + ">" + row['saida'] + "</td>";
+                html += "<td " + class_entrada + ">" + row['entrada'].substr(0, 5) + "</td>";
+                html += "<td " + class_almoco + ">" + row['almoco'].substr(0, 5) + "</td>";
+                html += "<td " + class_almoco + ">" + row['retorno'].substr(0, 5) + "</td>";
+                html += "<td " + class_saida + ">" + row['saida'].substr(0, 5) + "</td>";
                 html += "</tr>";
                 class_entrada = "";
                 class_almoco = "";
@@ -364,6 +365,22 @@ function loadDiario() {
             html += "</table>";
             $("#diario").html(html).trigger('create');
         });
+    });
+}
+
+/**
+ *
+ */
+function batchInsert() {
+    var sqls = $("#sqlinsert").val();
+    var arraySQL = sqls.split(";");
+
+    console.log(arraySQL);
+    console.log(arraySQL.length);
+    db.transaction(function(transaction) {
+        for (var j = 0; j < arraySQL.length - 1; j++) {
+            transaction.executeSql(arraySQL[j], [], console.log(arraySQL[j]), onError);
+        }
     });
 }
 
@@ -387,6 +404,15 @@ $(document).ready(function() {
 
     $("#confirm_update_no").on("click", function() {
         $("#confirm").popup('close');
+    });
+
+    $(document).on('pageshow', '#updatemanual', function() {
+        console.log('pageshow#updatemanual');
+        $("#inserirDadosTabelaPonto").on("click", function() {
+            batchInsert();
+            $.mobile.changePage("folha-de-ponto.html", {transition: "slideup"});
+        }).trigger('create');
+
     });
 
     $(document).on('click', '.apagarbtn', function() {

@@ -26,6 +26,7 @@
 	margin:0 auto !important;
 	width:275px;
 }
+.text-center{text-align: center;}
 .ui-select{width:100% !important;}
 .my-popup{
 	padding:30px;
@@ -42,6 +43,8 @@
     left: 50%;
     top:50%;
 }
+#mod_admin{position: relative; margin-top:70px;}
+#mod_admin a{display:block;}
 
 @media all and (orientation:landscape) {
 .center_period{
