@@ -1,154 +1,380 @@
-$(document).ready(function() {
+/**
+ * Estrutura para o projeto Folha de ponto mobile
+ * @author Wildiney Di Masi
+ * @version 1.0
+ */
 
-    var date = new Date();
-    var currentDate = date.getFullYear() + "-" + addZero((date.getMonth() + 1)) + "-" + addZero(date.getDate());
-    var currentTime = addZero(date.getHours()) + ":" + addZero(date.getMinutes());
+/**
+ *
+ * @type type
+ */
+var db;
 
-    // Banco de dados
-    var db;
-    var database = "ponto";
-    var version = "1.0";
-    var displayName = "ponto";
-    var maxSize = 2 * 1024 * 1024;
+/**
+ *
+ * @type String
+ */
+var database = "ponto";
 
+/**
+ *
+ * @type String
+ */
+var version = "1.0";
+
+/**
+ *
+ * @type String
+ */
+var displayName = "ponto";
+
+/**
+ *
+ * @type Number
+ */
+var maxSize = 2 * 1024 * 1024;
+
+/**
+ *
+ * @type Date
+ */
+var date = new Date();
+
+/**
+ *
+ * @type String
+ */
+var currentDate = date.getFullYear() + "-" + addZero((date.getMonth() + 1)) + "-" + addZero(date.getDate());
+
+/**
+ *
+ * @type String
+ */
+var currentTime = addZero(date.getHours()) + ":" + addZero(date.getMinutes());
+
+/**
+ * saveConfig
+ * @returns {undefined}
+ */
+function saveConfig() {
+    window.localStorage.setItem('empresa', $("input[name='input_empresa']").val());
+
+    window.localStorage.setItem('entrada', $("select[name='input_entrada']").val());
+    window.localStorage.setItem('almoco', $("select[name='input_almoco']").val());
+    window.localStorage.setItem('retorno', $("select[name='input_retorno']").val());
+    window.localStorage.setItem('saida', $("select[name='input_saida']").val());
+}
+
+/**
+ * addZero
+ * @param {type} value
+ * @returns {String}
+ */
+function addZero(value) {
+    if (value < 10) {
+        value = "0" + value;
+    }
+    return value;
+}
+
+/**
+ * onError
+ * @param {type} transaction
+ * @param {type} error
+ * @returns {undefined}
+ */
+function onError(transaction, error) {
+    console.log(error.message);
+}
+
+/**
+ * createTable
+ * @returns {void}
+ */
+function createTable() {
+    db.transaction(function(transaction) {
+        var sql = "CREATE TABLE IF NOT EXISTS ponto (id INTEGER PRIMARY KEY AUTOINCREMENT, data DATE NOT NULL, entrada TIME NOT NULL DEFAULT '00:00:00', almoco  TIME NOT NULL DEFAULT '00:00:00', retorno TIME NOT NULL DEFAULT '00:00:00', saida  TIME NOT NULL DEFAULT '00:00:00');";
+        transaction.executeSql(sql, [], console.log(transaction), onError);
+    });
+}
+
+/**
+ * deselectPeriod
+ * @returns {void}
+ */
+function deselectPeriod() {
+    $("#entrada").attr("checked", false).checkboxradio("refresh");
+    $("#almoco").attr("checked", false).checkboxradio("refresh");
+    $("#retorno").attr("checked", false).checkboxradio("refresh");
+    $("#saida").attr("checked", false).checkboxradio("refresh");
+}
+
+/**
+ * selectPeriod
+ * @returns {void}
+ */
+function selectPeriod() {
+    db.transaction(function(transaction) {
+        transaction.executeSql("SELECT * FROM ponto WHERE data = ?", [currentDate], function(transaction, results) {
+            var len = results.rows.length;
+            console.log(len);
+            if (len === 0) {
+                $("#entrada").attr("checked", true).checkboxradio("refresh");
+            } else {
+                var row = results.rows.item(0);
+                console.log(row);
+                if (row['entrada'] === "00:00:00") {
+                    deselectPeriod();
+                    $("#entrada").attr("checked", true).checkboxradio("refresh");
+                } else if (row['almoco'] === "00:00:00") {
+                    deselectPeriod();
+                    $("#almoco").attr("checked", true).checkboxradio("refresh");
+                } else if (row['retorno'] === "00:00:00") {
+                    deselectPeriod();
+                    $("#retorno").attr("checked", true).checkboxradio("refresh");
+                } else if (row['saida'] === "00:00:00") {
+                    deselectPeriod();
+                    $("#saida").attr("checked", true).checkboxradio("refresh");
+                } else {
+                    deselectPeriod();
+                    $("#saida").attr("checked", true).checkboxradio("refresh");
+                }
+            }
+        });
+    });
+}
+
+/**
+ * setup
+ * @returns {void}
+ */
+function setup() {
+    console.log("starting setup");
+
+    /** Funções de configuração do aplicativo */
+    $.mobile.loadingMessage = "Carregando";
+
+    /** Setup das variáveis iniciais */
+    if (localStorage.getItem("entrada") === null && localStorage.getItem("almoco") === null && localStorage.getItem("retorno") === null && localStorage.getItem('saida') === null) {
+        window.localStorage.setItem("entrada", "08:00");
+        window.localStorage.setItem("almoco", "12:00");
+        window.localStorage.setItem("retorno", "13:00");
+        window.localStorage.setItem("saida", "17:00");
+    }
+
+    /** Setup do banco */
     try {
         if (!window.openDatabase) {
-            alert('not supported');
+            alert('Aplicativo não suportado neste depositivo');
         } else {
             db = openDatabase(database, version, displayName, maxSize);
         }
     } catch (e) {
         if (e === 2) {
-            alert("Invalid database version");
+            alert("Versão inválida do banco de dados");
         } else {
-            alert("Unknown error " + e + ".");
+            alert("Erro desconhecido " + e + ".");
         }
         return;
     }
 
-    function saveConfig() {
-        localStorage.setItem('empresa', $("input[name='input_empresa']").val());
+    /** Cria tabela no banco de dados se não existir */
+    createTable();
 
-        localStorage.setItem('entrada', $("select[name='input_entrada']").val());
-        localStorage.setItem('almoco', $("select[name='input_almoco']").val());
-        localStorage.setItem('retorno', $("select[name='input_retorno']").val());
-        localStorage.setItem('saida', $("select[name='input_saida']").val());
+    console.log("finishing setup");
+}
 
-    }
+/**
+ * updateReg
+ * @param {string} periodo
+ * @param {time} currentTime
+ * @param {date} currentDate
+ * @returns {void}
+ */
+function updateReg(periodo, currentTime, currentDate) {
+    db.transaction(
+            function(transaction) {
+                transaction.executeSql("UPDATE ponto SET " + periodo + "=? WHERE data = ?;", [currentTime, currentDate], console.log('updated'), onError);
+            }
+    );
+}
 
-    function addZero(value) {
-        if (value < 10) {
-            value = "0" + value;
-        }
-        return value;
-    }
+/**
+ * deletarReg
+ * @param {integer} id
+ * @returns {void}
+ */
+function deletarReg(id) {
+    db.transaction(
+            function(transaction) {
+                transaction.executeSql("DELETE FROM ponto WHERE id = ?;", [id], function() {
+                    console.log('registro deletado');
+                }, onError);
+            }
+    );
+}
 
-    function onError(transaction, error) {
-        console.log(error.message);
-    }
+/**
+ * registrar
+ * @returns {undefined}
+ */
+function registrar() {
+    console.log("funcao registrar");
 
-    function createTable() {
-        db.transaction(function(transaction) {
-            transaction.executeSql("CREATE TABLE IF NOT EXISTS ponto (id INTEGER PRIMARY KEY AUTOINCREMENT, data DATE NOT NULL, entrada TIME NOT NULL DEFAULT '00:00:00', almoco  TIME NOT NULL DEFAULT '00:00:00', retorno TIME NOT NULL DEFAULT '00:00:00', saida  TIME NOT NULL DEFAULT '00:00:00');", [], function(transaction) {
-                console.log("table created");
-            }, onError);
-        });
-    }
+    var periodo = $('#periodo :radio:checked').val();
 
-    function setup() {
-        // $.mobile
-        $.mobile.loadingMessage = "Carregando";
+    var date = new Date();
+    var currentDate = date.getFullYear() + "-" + addZero((date.getMonth() + 1)) + "-" + addZero(date.getDate());
+    var currentTime = addZero(date.getHours()) + ":" + addZero(date.getMinutes());
 
-        // Config App
-        if (
-                localStorage.getItem("entrada") === null &&
-                localStorage.getItem("almoco") === null &&
-                localStorage.getItem("retorno") === null &&
-                localStorage.getItem('saida') === null
-                ) {
-            $.mobile.changePage("configuracoes.html", {transition: "slideup"});
-        } else {
-            var entrada = localStorage.getItem("entrada");
-            entrada = entrada.replace(":", "");
+    db.transaction(function(transaction) {
+        transaction.executeSql("SELECT * FROM ponto WHERE data = ?", [currentDate], function(transaction, results) {
+            var len = results.rows.length;
+            console.log(len);
 
-            createTable();
+            if (len === 0) {
+                transaction.executeSql("INSERT INTO ponto ('data') VALUES (?)", [currentDate], console.log(currentDate), onError);
+                updateReg(periodo, currentTime, currentDate);
+                $.mobile.changePage("folha-de-ponto.html", {transition: "slideup"});
+            } else {
+                transaction.executeSql("SELECT * FROM ponto WHERE data = ? AND " + periodo + "<>'00:00:00'", [currentDate], function(transaction, results) {
 
-            db.transaction(function(transaction) {
-                transaction.executeSql("SELECT * FROM ponto WHERE data = ?", [currentDate], function(transaction, results) {
                     var len = results.rows.length;
 
                     if (len === 0) {
-                        //$("#periodo option[value='entrada']").prop("selected",true).trigger("change");
-                        $("#entrada").attr("checked", true).checkboxradio("refresh");
+                        updateReg(periodo, currentTime, currentDate);
+                        $.mobile.changePage("folha-de-ponto.html", {transition: "slideup"});
                     } else {
-                        var row = results.rows.item(0);
-                        if (row['almoco'] === null) {
-                            $("#almoco").attr("checked", true).checkboxradio("refresh");
-                        } else if (row['retorno'] === null) {
-                            $("#retorno").attr("checked", true).checkboxradio("refresh");
-                        } else if (row['saida'] === null) {
-                            $("#saida").attr("checked", true).checkboxradio("refresh");
-                        } else {
-                            $("#entrada").attr("checked", false).checkboxradio("refresh");
-                            $("#almoco").attr("checked", false).checkboxradio("refresh");
-                            $("#retorno").attr("checked", false).checkboxradio("refresh");
-                            $("#saida").attr("checked", false).checkboxradio("refresh");
-                        }
+                        $("#confirm").popup('open');
                     }
-                });
-            });
-        }
-    }
+                }, onError);
 
-    function updateReg(periodo, currentTime, currentDate) {
-        db.transaction(
-                function(transaction) {
-                    transaction.executeSql("UPDATE ponto SET " + periodo + "=? WHERE data = ?;", [currentTime, currentDate], function() {
-                        console.log('updated');
-                    }, onError);
+            }
+        }, onError);
+    });
+}
+
+/**
+ *
+ * @param {type} value
+ * @returns {String}
+ */
+function data_dm(value) {
+    day = value.substr(8);
+    month = value.substr(5, 2);
+
+    return day + "/" + month;
+}
+
+/**
+ *
+ * @returns {undefined}
+ */
+function loadFolha() {
+    db.transaction(function(tx) {
+        tx.executeSql('SELECT * FROM ponto', [], function(tx, results) {
+            var len = results.rows.length;
+            var entrada = window.localStorage.getItem('entrada');
+            var almoco = window.localStorage.getItem('almoco');
+            var retorno = window.localStorage.getItem('retorno');
+            var saida = window.localStorage.getItem('saida');
+
+            html = "<table class='tabela_de_horarios'>";
+            html += "<tr><th>data</th><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><th>apagar</th><tr>";
+            for (var i = 0; i < len; i++) {
+                var row = results.rows.item(i);
+                if (row['entrada'] !== null) {
+                    if (row['entrada'].replace(":", "") > entrada.replace(":", "")) {
+                        var class_entrada = "class='atraso'";
+                    }
                 }
-        );
-    }
-
-    function deletarReg(id) {
-        db.transaction(
-                function(transaction) {
-                    transaction.executeSql("DELETE FROM ponto WHERE id = ?;", [id], function() {
-                        console.log('registro deletado');
-                    }, onError);
+                if (row['almoco'] !== null && row['retorno'] !== null) {
+                    if (row['almoco'].replace(":", "") + 1000 > row['retorno'].replace(":", "")) {
+                        var class_almoco = "class='atraso'";
+                    }
                 }
-        );
-    }
-
-    function registrar() {
-        console.log("funcao registrar");
-
-        var periodo = $('#periodo :radio:checked').val();
-        var date = new Date();
-        var currentDate = date.getFullYear() + "-" + addZero((date.getMonth() + 1)) + "-" + addZero(date.getDate());
-        var currentTime = addZero(date.getHours()) + ":" + addZero(date.getMinutes());
-
-        db.transaction(function(transaction) {
-            transaction.executeSql("SELECT * FROM ponto WHERE data = ?", [currentDate], function(transaction, results) {
-                var len = results.rows.length;
-                console.log(len);
-
-                if (len === 0) {
-                    transaction.executeSql("INSERT INTO ponto ('data','entrada') VALUES (?,?)", [currentDate, currentTime], function() {
-                        console.log(currentDate, currentTime);
-                    }, onError);
-                    $.mobile.changePage("folha-de-ponto.html", {transition: "slideup"});
-                } else {
-                    $("#confirm").popup('open');
+                if (row['saida'] !== null) {
+                    if (row['saida'].replace(":", "") < saida.replace(":", "")) {
+                        var class_saida = "class='atraso'";
+                    }
                 }
-            }, onError);
+
+                html += "<tr>";
+                html += "<td>" + data_dm(row['data']) + "</td>";
+                html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
+                html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
+                html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
+                html += "<td " + class_saida + ">" + row['saida'] + "</td>";
+                html += "<td><a href='#' title='" + row['id'] + "' class='apagarbtn' data-inline='true' data-mini='true' data-iconpos='notext' data-icon='delete' data-role='button'></a></td>";
+                html += "</tr>";
+                class_entrada = "";
+                class_almoco = "";
+                class_saida = "";
+            }
+            html += "</table>";
+            $("#resultados").html(html).trigger('create');
         });
-    }
+    });
+}
 
-    // Actions
+/**
+ * loadDiario
+ * @returns {undefined}
+ */
+function loadDiario() {
+    db.transaction(function(tx) {
+        tx.executeSql('SELECT * FROM ponto WHERE data=?', [currentDate], function(tx, results) {
+            var len = results.rows.length;
+            var entrada = localStorage.getItem('entrada');
+            var almoco = localStorage.getItem('almoco');
+            var retorno = localStorage.getItem('retorno');
+            var saida = localStorage.getItem('saida');
+
+            html = "<table class='tabela_de_horarios'>";
+            html += "<tr><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><tr>";
+            for (var i = 0; i < len; i++) {
+                var row = results.rows.item(i);
+                if (row['entrada'] !== null) {
+                    if (row['entrada'].replace(":", "") > entrada.replace(":", "")) {
+                        var class_entrada = "class='atraso'";
+                    }
+                }
+                if (row['almoco'] !== null && row['retorno'] !== null) {
+                    if (row['almoco'].replace(":", "") + 1000 > row['retorno'].replace(":", "")) {
+                        var class_almoco = "class='atraso'";
+                    }
+                }
+                if (row['saida'] !== null) {
+                    if (row['saida'].replace(":", "") < saida.replace(":", "")) {
+                        var class_saida = "class='atraso'";
+                    }
+                }
+
+
+                html += "<tr>";
+                html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
+                html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
+                html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
+                html += "<td " + class_saida + ">" + row['saida'] + "</td>";
+                html += "</tr>";
+                class_entrada = "";
+                class_almoco = "";
+                class_saida = "";
+            }
+            html += "</table>";
+            $("#diario").html(html).trigger('create');
+        });
+    });
+}
+
+$(document).ready(function() {
+    /** Execuções */
+    setup();
+
+    /** Actions */
     $('#bater').on("click", registrar);
 
-    // Popups
+    /** Popups */
     $("#confirm_update_yes").on("click", function() {
         var periodo = $('#periodo :radio:checked').val();
         var date = new Date();
@@ -161,90 +387,42 @@ $(document).ready(function() {
 
     $("#confirm_update_no").on("click", function() {
         $("#confirm").popup('close');
-    })
+    });
 
     $(document).on('click', '.apagarbtn', function() {
         var reglink = $(this).attr('title');
         deletarReg(reglink);
         loadFolha();
     });
-	
-	function data_dm(value){
-		day = value.substr(8);
-		month = value.substr(5,2);
-		
-		return day+"/"+month;
-		}
-
-    function loadFolha() {
-        db.transaction(function(tx) {
-            tx.executeSql('SELECT * FROM ponto', [], function(tx, results) {
-                var len = results.rows.length;
-                var entrada = localStorage.getItem('entrada');
-                var almoco = localStorage.getItem('almoco');
-                var retorno = localStorage.getItem('retorno');
-                var saida = localStorage.getItem('saida');
-
-                html = "<table class='tabela_de_horarios'>";
-                html += "<tr><th>data</th><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><th>apagar</th><tr>";
-                for (var i = 0; i < len; i++) {
-                    var row = results.rows.item(i);
-                    if (row['entrada'] !== null) {
-                        if (row['entrada'].replace(":", "") > entrada.replace(":", "")) {
-                            var class_entrada = "class='atraso'";
-                        }
-                    }
-                    if (row['almoco'] !== null && row['retorno'] !== null) {
-                        if (row['almoco'].replace(":", "") + 1000 > row['retorno'].replace(":", "")) {
-                            var class_almoco = "class='atraso'";
-                        }
-                    }
-                    if (row['saida'] !== null) {
-                        if (row['saida'].replace(":", "") < saida.replace(":", "")) {
-                            var class_saida = "class='atraso'";
-                        }
-                    }
-					
-					
-                    html += "<tr>";
-                    html += "<td>" + data_dm(row['data']) + "</td>";
-                    html += "<td " + class_entrada + ">" + row['entrada'] + "</td>";
-                    html += "<td " + class_almoco + ">" + row['almoco'] + "</td>";
-                    html += "<td " + class_almoco + ">" + row['retorno'] + "</td>";
-                    html += "<td " + class_saida + ">" + row['saida'] + "</td>";
-                    html += "<td><a href='#' title='" + row['id'] + "' class='apagarbtn' data-inline='true' data-mini='true' data-iconpos='notext' data-icon='delete' data-role='button'></a></td>";
-                    html += "</tr>";
-                    class_entrada = "";
-                    class_almoco = "";
-                    class_saida = "";
-                }
-                html += "</table>";
-                $("#resultados").html(html).trigger('create');
-            });
-        });
-    }
-
-
-
-
 
     $(document).on('pageshow', '#configuracoes', function() {
-
-        $("#input_empresa").val(localStorage.getItem('empresa'));
-        $("#input_entrada option[value='" + localStorage.getItem('entrada') + "']").prop("selected", true).trigger("change");
-        $("#input_almoco option[value='" + localStorage.getItem('almoco') + "']").prop("selected", true).trigger("change");
-        $("#input_retorno option[value='" + localStorage.getItem('retorno') + "']").prop("selected", true).trigger("change");
-        $("#input_saida option[value='" + localStorage.getItem('saida') + "']").prop("selected", true).trigger("change");
+        $("#input_empresa").val(window.localStorage.getItem('empresa'));
+        $("#input_entrada option[value='" + window.localStorage.getItem('entrada') + "']").prop("selected", true).trigger("change");
+        $("#input_almoco option[value='" + window.localStorage.getItem('almoco') + "']").prop("selected", true).trigger("change");
+        $("#input_retorno option[value='" + window.localStorage.getItem('retorno') + "']").prop("selected", true).trigger("change");
+        $("#input_saida option[value='" + window.localStorage.getItem('saida') + "']").prop("selected", true).trigger("change");
 
         $("#salvar").on("click", function() {
             saveConfig();
-        	$.mobile.changePage("index.html", {transition: "slideup"});
+            $.mobile.changePage("index.html", {transition: "slideup"});
         });
     });
+
     $(document).on('pageshow', '#folha-de-ponto', function() {
         loadFolha();
     });
 
-    setup();
+    $(document).on('pageshow', '#home', function() {
+        console.log("#home.pageshow");
+        loadDiario();
+        selectPeriod();
+    });
 
 });
+
+
+/**
+ * Exemplos
+ *
+ * $("#periodo option[value='entrada']").prop("selected",true).trigger("change");
+ */

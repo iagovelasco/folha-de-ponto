@@ -32,7 +32,18 @@
 	}
 .atraso{color:#900; font-weight:bold;}
 
-@media all and (orientation:landscape) { 
+#diario{position:relative; width: auto;  }
+#registro{ height:220px; width: 100%; position: relative;}
+#registro #bater{
+    width:200px;
+    position:relative;
+    margin-left:-100px;
+    margin-top:-25px;
+    left: 50%;
+    top:50%;
+}
+
+@media all and (orientation:landscape) {
 .center_period{
 	margin:0 auto !important;
 	width:auto;
