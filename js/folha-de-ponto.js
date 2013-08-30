@@ -284,17 +284,17 @@ function loadFolha() {
             html += "<tr><th>data</th><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><th>apagar</th><tr>";
             for (var i = 0; i < len; i++) {
                 var row = results.rows.item(i);
-                if (row['entrada'] !== null) {
+                if (row['entrada'] !== "00:00:00") {
                     if (row['entrada'].replace(":", "") > entrada.replace(":", "")) {
                         var class_entrada = "class='atraso'";
                     }
                 }
-                if (row['almoco'] !== null && row['retorno'] !== null) {
+                if (row['almoco'] !== "00:00:00" && row['retorno'] !== "00:00:00") {
                     if (row['almoco'].replace(":", "") + 1000 > row['retorno'].replace(":", "")) {
                         var class_almoco = "class='atraso'";
                     }
                 }
-                if (row['saida'] !== null) {
+                if (row['saida'] !== "00:00:00") {
                     if (row['saida'].replace(":", "") < saida.replace(":", "")) {
                         var class_saida = "class='atraso'";
                     }
@@ -335,17 +335,17 @@ function loadDiario() {
             html += "<tr><th>entrada</th><th>almoço</th><th>retorno</th><th>saida</th><tr>";
             for (var i = 0; i < len; i++) {
                 var row = results.rows.item(i);
-                if (row['entrada'] !== null) {
+                if (row['entrada'] !== "00:00:00") {
                     if (row['entrada'].replace(":", "") > entrada.replace(":", "")) {
                         var class_entrada = "class='atraso'";
                     }
                 }
-                if (row['almoco'] !== null && row['retorno'] !== null) {
+                if (row['almoco'] !== "00:00:00" && row['retorno'] !== "00:00:00") {
                     if (row['almoco'].replace(":", "") + 1000 > row['retorno'].replace(":", "")) {
                         var class_almoco = "class='atraso'";
                     }
                 }
-                if (row['saida'] !== null) {
+                if (row['saida'] !== "00:00:00") {
                     if (row['saida'].replace(":", "") < saida.replace(":", "")) {
                         var class_saida = "class='atraso'";
                     }
