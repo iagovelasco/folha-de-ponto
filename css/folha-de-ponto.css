@@ -34,7 +34,7 @@
 .atraso{color:#900; font-weight:bold;}
 
 #diario{position:relative; width: auto;  }
-#registro{ height:220px; width: 100%; position: relative;}
+#registro{ margin-top:40px; width: 100%; position: relative;}
 #registro #bater{
     width:200px;
     position:relative;

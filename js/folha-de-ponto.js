@@ -180,7 +180,7 @@ function setup() {
 
     /** Cria tabela no banco de dados se não existir */
     createTable();
-    loadDiario();
+    //loadDiario();
 
     console.log("finishing setup");
 }
